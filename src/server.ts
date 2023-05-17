@@ -35,6 +35,9 @@ const clients = {}; // Store client data
             path: '/',
             capabilities: {
             browserName: 'chrome',
+              /*'goog:chromeOptions': {
+                args: ['--headless', '--disable-gpu', '--no-sandbox', '--window-size=1920,1080'],
+              },*/
             },
         });
 
@@ -82,7 +85,7 @@ const clients = {}; // Store client data
   
       const successResponse = {
           status: 'success',
-          message: `${url} opened successfully`
+          message: `${setupName} opened successfully`
       };
   
       callback(null, successResponse);

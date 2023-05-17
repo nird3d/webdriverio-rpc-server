@@ -23,7 +23,7 @@
     "@types/express": "^4.17.17",
     "@types/node": "^18.15.11",
     "@types/selenium-webdriver": "^4.1.13",
-    "chromedriver": "^112.0.0",
+    "chromedriver": "^113.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
     "wdio-chromedriver-service": "^8.1.1"

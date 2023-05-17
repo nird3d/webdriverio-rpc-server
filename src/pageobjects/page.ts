@@ -19,8 +19,8 @@ export class Page {
         return currentUrl === loginUrl;
       },
       {
-        timeout: 5000,
-        timeoutMsg: "Timeout waiting for 'www.marinz.com' to load",
+        timeout: 15000,
+        timeoutMsg: `Timeout waiting for ${loginUrl}`,
         interval: 500,
       }
     );

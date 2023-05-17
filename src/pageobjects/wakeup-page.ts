@@ -1,7 +1,3 @@
-import Pages from "./3do-pages";
-import General from "./3do-general";
-
-
 import { Browser } from 'webdriverio';
 import {Page} from "./page";
 
@@ -39,8 +35,9 @@ export class Wakeup extends Page {
     return this.browser.$("#existing-from-local");
   }
   private get searchBox() {
-    return this.browser.$("#free-string");
+    return this.browser.$("[qa_id= free-string_qa]");
   }
+
   private get infoFormTitle() {
     return this.browser.$("#parser-main-title");
   }
@@ -51,12 +48,13 @@ export class Wakeup extends Page {
   private get searchResults() {
     return this.browser.$$("#setup-name");
   }
-  private get versioDisplayContainer() {
-    return this.browser.$("#version-display");
-  }
-
+  
   private get generalComments() {
     return this.browser.$("#general_comments");
+  }
+
+  private get publicOrPrivate() {
+    return this.browser.$("#publication");
   }
 
   private get labelsContainer() {
@@ -74,25 +72,31 @@ export class Wakeup extends Page {
   //////////////////////////DELETE SETUP/////////////////////////////////////////////////
 
   private get yesBtnDelete() {
-    return this.browser.$("#yes-popup-btn");
+    return this.browser.$('[qa_id="yes-popup-btn-qa"]');
   }
 
   private get searchSetupTextBox() {
-    return this.browser.$('input[type="search"][placeholder="Search"][qa_id="free-string"]');
+    return this.browser.$('[qa_id="free-string_qa"]');
   }
 
   private get checkAll() {
-    return this.browser.$("#check-all");
+    return this.browser.$('[qa_id="check-all-qa"]');
   }
 
-
   private get deleteBtn() {
-    return this.browser.$("#delete-btn");
+    return this.browser.$('[qa_id="wakeup-delete-btn-qa"]');
+  }
+
+  public async search(designName: string) {
+    await this.browser.waitUntil(() => this.searchBox.isClickable(), {
+      timeout: 100000,
+      timeoutMsg: "!!! - The wakeup screen did not load",
+    });
+
+    await this.searchBox.setValue(designName);
   }
 
   public async deleteSetup(setupName: string) {
-
-    await this.browser.pause(1000);
 
     await this.browser.waitUntil(() => this.searchSetupTextBox.isClickable(), {
       timeout: 10000,
@@ -110,6 +114,13 @@ export class Wakeup extends Page {
     });
 
     await this.browser.pause(1000);
+
+    await this.browser.waitUntil(() => this.checkAll.isDisplayed(), {
+      timeout: 10000,
+      interval: 500,
+      timeoutMsg:
+        "!!! - The Delete button in the information form is not clickable",
+    });
 
     await this.browser.waitUntil(() => this.checkAll.isClickable(), {
       timeout: 10000,
@@ -141,22 +152,28 @@ export class Wakeup extends Page {
     });
 
     await this.yesBtnDelete.click();
+
+    await this.browser.pause(3000);
   }
 
-  public async search(designName: string) {
+  public async openDesign(designName) {
+    await this.browser.waitUntil(() => this.searchBox.isDisplayed(), {
+      timeout: 100000,
+      timeoutMsg: "!!! - The wakeup screen did not load",
+    });
+
     await this.browser.waitUntil(() => this.searchBox.isClickable(), {
       timeout: 100000,
       timeoutMsg: "!!! - The wakeup screen did not load",
     });
 
     await this.searchBox.setValue(designName);
-  }
 
-  public async openDesign(designName) {
     await this.browser.waitUntil(async () => (await this.searchResults.length) > 0, {
       timeout: 5000,
       timeoutMsg: "!!! - The search results are empty",
     });
+
     const foundDesigns = await this.searchResults;
     const indexOfSearchedNames = await (
       await this.searchResultsList
@@ -164,27 +181,6 @@ export class Wakeup extends Page {
 
     await foundDesigns[indexOfSearchedNames].click();
 
-    if (this.infoFormCloseButton[0].isDisplayed()) {
-      await this.browser.waitUntil(() => this.infoFormCloseButton[0].isClickable(), {
-        timeout: 9000,
-        timeoutMsg:
-          "!!! - The 'X' button in the information form is not clickable",
-      });
-      console.log("@@@@ - Before click!!!");
-
-      await (await this.infoFormTitle).click();
-      await General.sleep(1000);
-
-      (await this.infoFormCloseButton[0]).click();
-
-      console.log("@@@@ - After click!!!");
-    }
-    await this.versioDisplayContainer.click();
-
-    await this.browser.waitUntil(() => this.fileMenu.isDisplayed(), {
-      timeout: 8000,
-      timeoutMsg: "!!! - The selected design was not opened",
-    });
   }
   public async importDesign() {
     await this.browser.execute(

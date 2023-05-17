@@ -46,7 +46,7 @@ export class Landing extends Page {
     await super.waitUntilPageOpens(loginURL);
     const isInputEmailDisplayed = await this.inputEmail[1].isDisplayed();
     this.browser.waitUntil(() => isInputEmailDisplayed, {
-      timeout: 10000,
+      timeout: 20000,
       timeoutMsg: "!!! - The login dialog did not fully load",
     });
     await this.inputEmail[1].setValue(username);
