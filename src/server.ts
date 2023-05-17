@@ -5,6 +5,8 @@ import bodyParser from 'body-parser';
 import chromedriver from 'chromedriver';
 import { Landing } from './pageobjects/landing-page';
 import { Settings } from "./pageobjects/setting";
+import { Wakeup } from './pageobjects/wakeup-page';
+
 
 const app = express();
 
@@ -12,7 +14,9 @@ const app = express();
 const args: string[] = [
 // Optional arguments
 ];
-  
+
+const clients = {}; // Store client data
+
   // Start the ChromeDriver process with Promise option
   const returnPromise = true;
   chromedriver
@@ -33,7 +37,9 @@ const args: string[] = [
             browserName: 'chrome',
             },
         });
-    
+
+        const sessionId = browser.sessionId;
+        
         const landing_page = new Landing(browser);
         await landing_page.enterSiteAndLogin(
             Settings.devSiteURL,
@@ -43,10 +49,12 @@ const args: string[] = [
             Settings.loginUser,
             Settings.loginPassword
           );
-    
+        clients[sessionId] = { browser };
+        
         const successResponse = {
             status: 'success',
             message: `URL opened successfully: ${url}`,
+            sessionId: sessionId
         };
     
         callback(null, successResponse);
@@ -55,6 +63,34 @@ const args: string[] = [
         callback(error as Error | null);
         }
     },
+    openSetup: async function (params: string[], callback: (err: Error | null, res?: any) => void) {
+      try {
+      const sessionId = params[0];
+      const setupName = params[1];
+
+      const client = clients[sessionId];
+
+      if (!client) {
+        callback(new Error(`No browser instance found for session: ${sessionId}`));
+        return;
+      }
+      
+      const wakeup_page = new Wakeup(client.browser);
+      await wakeup_page.search(setupName);
+      await wakeup_page.openDesign(setupName);
+
+  
+      const successResponse = {
+          status: 'success',
+          message: `${url} opened successfully`
+      };
+  
+      callback(null, successResponse);
+      } catch (error) {
+      console.error('Error:', error);
+      callback(error as Error | null);
+      }
+     }
     });
     
 app.use(bodyParser.json());
